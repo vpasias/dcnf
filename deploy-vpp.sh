@@ -95,8 +95,8 @@ sleep 50
 vagrant ssh l4 -c "sudo vppctl enable tap-inject"
 vagrant ssh l4 -c "sudo ip addr add 172.16.14.2/24 dev vpp0 && sudo ip link set dev vpp0 up"
 vagrant ssh l4 -c "sudo ip addr add 172.16.24.2/24 dev vpp1 && sudo ip link set dev vpp1 up"
-vagrant ssh l4 -c "sudo ip addr add 172.16.114.1/24 dev vpp0 && sudo ip link set dev vpp0 up"
-vagrant ssh l4 -c "sudo ip addr add 172.16.124.1/24 dev vpp1 && sudo ip link set dev vpp1 up"
+vagrant ssh l4 -c "sudo ip addr add 172.16.114.1/24 dev vpp2 && sudo ip link set dev vpp0 up"
+vagrant ssh l4 -c "sudo ip addr add 172.16.124.1/24 dev vpp3 && sudo ip link set dev vpp1 up"
 vagrant ssh l4 -c "sudo ip a"
 vagrant ssh l4 -c "sudo chmod +x net_provisioning-vpp && ./net_provisioning-vpp"
 
