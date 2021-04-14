@@ -69,8 +69,8 @@ if [[ "$router_type" =~ "pe" ]]; then
     sudo ip route add blackhole 0.0.0.0/0 table 20
     sudo ip link add name vrf_cust1 type vrf table 10
     sudo ip link add name vrf_cust2 type vrf table 20
-    sudo ip link set vpp0 master vrf_cust1
-    sudo ip link set vpp1 master vrf_cust2
+    sudo ip link set vpp2 master vrf_cust1
+    sudo ip link set vpp3 master vrf_cust2
     sudo ip link set vrf_cust1 up
     sudo ip link set vrf_cust2 up
 fi
