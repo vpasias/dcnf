@@ -26,6 +26,8 @@ interface lo
 !
 {% if edge_router %}
 router bgp 65010
+ bgp router-id {{ local_loopback }}
+ coalesce-time 1000
  neighbor {{ neighbor_loopback }} remote-as 65010
  neighbor {{ neighbor_loopback }} update-source {{ local_loopback }}
  !
