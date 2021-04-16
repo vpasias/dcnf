@@ -24,19 +24,55 @@ interface lo
  ipv6 router openfabric 1
  openfabric passive
 !
+{% if rr_router %}
+router bgp 65010
+ bgp router-id {{ local_loopback }}
+ bgp log-neighbor-changes
+ neighbor {{ neighbor1_loopback }} remote-as 65010
+ neighbor {{ neighbor1_loopback }} update-source {{ local_loopback }}
+ neighbor {{ neighbor2_loopback }} remote-as 65010
+ neighbor {{ neighbor2_loopback }} update-source {{ local_loopback }}
+ neighbor {{ neighbor3_loopback }} remote-as 65010
+ neighbor {{ neighbor3_loopback }} update-source {{ local_loopback }}
+ neighbor {{ neighbor4_loopback }} remote-as 65010
+ neighbor {{ neighbor4_loopback }} update-source {{ local_loopback }}
+ !
+ address-family ipv4 unicast
+  no neighbor {{ neighbor1_loopback }} activate
+  no neighbor {{ neighbor2_loopback }} activate
+  no neighbor {{ neighbor3_loopback }} activate
+  no neighbor {{ neighbor4_loopback }} activate  
+ exit-address-family
+ !
+ address-family l2vpn evpn
+  neighbor {{ neighbor1_loopback }} activate
+  neighbor {{ neighbor1_loopback }} route-reflector-client
+  neighbor {{ neighbor2_loopback }} activate
+  neighbor {{ neighbor2_loopback }} route-reflector-client
+  neighbor {{ neighbor3_loopback }} activate
+  neighbor {{ neighbor3_loopback }} route-reflector-client
+  neighbor {{ neighbor4_loopback }} activate
+  neighbor {{ neighbor4_loopback }} route-reflector-client
+ exit-address-family
+!
+{% endif %}
 {% if edge_router %}
 router bgp 65010
  bgp router-id {{ local_loopback }}
  coalesce-time 1000
- neighbor {{ neighbor_loopback }} remote-as 65010
- neighbor {{ neighbor_loopback }} update-source {{ local_loopback }}
+ neighbor {{ rr1_loopback }} remote-as 65010
+ neighbor {{ rr1_loopback }} update-source {{ local_loopback }}
+ neighbor {{ rr2_loopback }} remote-as 65010
+ neighbor {{ rr2_loopback }} update-source {{ local_loopback }}
  !
  address-family ipv4 unicast
-  no neighbor {{ neighbor_loopback }} activate
+  no neighbor {{ rr1_loopback }} activate
+  no neighbor {{ rr2_loopback }} activate
  exit-address-family
  !
  address-family l2vpn evpn
-  neighbor {{ neighbor_loopback }} activate
+  neighbor {{ rr1_loopback }} activate
+  neighbor {{ rr2_loopback }} activate
   advertise-all-vni
   advertise ipv4 unicast
  exit-address-family
@@ -133,20 +169,34 @@ for address in loopback_addr_ipv6_list:
 lo_octets = local_loopback.compressed.split('.')
 neighbor_loopback = ipaddress.ip_address('127.0.0.27')
 if edge_router:
-    if lo_octets[-1] == '1':
-        neighbor_last_octet = '2'
+    rr1_loopback = '172.16.250.1'
+    rr2_loopback = '172.16.250.2'
+if rr_router:
+   if lo_octets[-1] == '1':
+        neighbor1_last_octet = '101'        
+        neighbor2_last_octet = '102'
+        neighbor3_last_octet = '103'
+        neighbor4_last_octet = '104'      
     elif lo_octets[-1] == '2':
-        neighbor_last_octet = '1'
-    elif lo_octets[-1] == '3':
-        neighbor_last_octet = '4'
-    elif lo_octets[-1] == '4':
-        neighbor_last_octet = '3'  
+        neighbor1_last_octet = '101'        
+        neighbor2_last_octet = '102'
+        neighbor3_last_octet = '103'
+        neighbor4_last_octet = '104'     
     else:
         raise ValueError('unacceptable loopback address {}'.format(
             local_loopback.compressed))
-    neighbor_octets = lo_octets[:-1]
-    neighbor_octets.append(neighbor_last_octet)
-    neighbor_loopback = ipaddress.ip_address('.'.join(neighbor_octets))
+    neighbor1_octets = lo_octets[:-1]
+    neighbor1_octets.append(neighbor1_last_octet)
+    neighbor1_loopback = ipaddress.ip_address('.'.join(neighbor1_octets))
+    neighbor2_octets = lo_octets[:-1]
+    neighbor2_octets.append(neighbor2_last_octet)
+    neighbor2_loopback = ipaddress.ip_address('.'.join(neighbor2_octets))
+    neighbor3_octets = lo_octets[:-1]
+    neighbor3_octets.append(neighbor3_last_octet)
+    neighbor3_loopback = ipaddress.ip_address('.'.join(neighbor3_octets))   
+    neighbor4_octets = lo_octets[:-1]
+    neighbor4_octets.append(neighbor4_last_octet)
+    neighbor4_loopback = ipaddress.ip_address('.'.join(neighbor4_octets))
 iso_net = [prepend_octet(x) for x in local_loopback.compressed.split('.')]
 iso_net = ''.join(iso_net)
 step = 0
